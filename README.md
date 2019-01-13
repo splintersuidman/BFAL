@@ -1,4 +1,4 @@
-# BFAL -- **B**rain**f**uck **A**bstraction **L**anguage
+# BFAL – *B*rain*f*uck *A*bstraction *L*anguage [![Build Status](https://travis-ci.org/splintah/BFAL.svg?branch=master)](https://travis-ci.org/splintah/BFAL)
 
 BFAL is a small programming language which compiles to [Brainfuck].
 
