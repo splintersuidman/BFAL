@@ -66,6 +66,7 @@ compile SGoto { _name = name } c
 -- Set the current variable to the given value.
 compile SSet { _value = value } c
   = compileExpr value . compilerClearCell $ c
+-- Goto the variable and execute the statement.
 compile SWith { _name = name, _stmt = stmt } c
   = compilerGoToSymbol name c >>= compile stmt
 -- Print the current cell.
