@@ -1,0 +1,41 @@
+# Set `h`, `e`, and `y` to their respective ASCII values.
+var h = 104;
+var e = 101;
+var y = 121;
+# Set `newline` to the ASCII value of '\n'.
+var newline = 10;
+
+# Go to the variables and put them.
+goto h; put;
+# "<name> ~ <statement>" is a shorthand for "goto <name>; <statement>".
+e ~ put;
+y ~ put;
+newline ~ put;
+
+# Print "BFAL\n".
+var l;
+h ~ set 66; # 'B'
+put;        # NOTE: the last visited cell will be pointed to afterwards.
+e ~ set 70; # 'F'
+put;
+y ~ set 65; # 'A'
+put;
+l ~ set 76; # 'L'
+put;
+newline ~ put;
+
+# Print the Rot13 of "BFAL" and a newline.
+# NOTE: this is not a general Rot13 algorithm, but because 'B', 'F', 'A', and
+#       'L' are all in the 'lower' half of the alphabet, they can increased by
+#       13.
+h ~ add 13; put;
+e ~ add 13; put;
+y ~ add 13; put;
+l ~ add 13; put;
+newline ~ put;
+
+# Read a character into `read`, and print it followed by a newline.
+# NOTE: statement names can also be used as variable names.
+var read;
+read ~ read; put;
+newline ~ put;

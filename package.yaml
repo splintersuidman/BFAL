@@ -1,0 +1,50 @@
+name:                BFAL
+version:             0.1.0.0
+github:              "splintah/BFAL"
+license:             MIT
+author:              "Splinter Suidman"
+copyright:           "2019 Splinter Suidman"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/splintah/BFAL#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- containers >= 0.6 && < 0.7
+- lens >= 4.0 && < 5.0
+- Comb
+
+library:
+  source-dirs: src
+
+executables:
+  BFAL-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - BFAL
+
+tests:
+  BFAL-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - BFAL
