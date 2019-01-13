@@ -60,13 +60,13 @@ compile SVar { _name = name, _initValue = initValue } c
      in case compilerLookup name c of
           Right _ -> Left $ "symbol '" ++ name ++ "' already exists"
           Left _ -> init . compilerAddVar name $ c
--- Goto a variable if it exists.
+-- Go to a variable if it exists.
 compile SGoto { _name = name } c
   = compilerGoToSymbol name c
 -- Set the current variable to the given value.
 compile SSet { _value = value } c
   = compileExpr value . compilerClearCell $ c
--- Goto the variable and execute the statement.
+-- Go to the variable and execute the statement.
 compile SWith { _name = name, _stmt = stmt } c
   = compilerGoToSymbol name c >>= compile stmt
 -- Print the current cell.
