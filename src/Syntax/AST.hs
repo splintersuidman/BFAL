@@ -6,7 +6,8 @@ module Syntax.AST
 
 -- Grammar:
 --   Program ::= (Line)*
---   Line    ::= Stmt ";"
+--   Line    ::= (Comment)* Stmt ";" (Comment)*
+--   Comment ::= "#" (not "\n")* "\n"
 --   Stmt    ::= SVar | SGoto | SSet | SWith | SPut | SIncr | SDecr | SAdd | SSub
 --   SVar    ::= "var" Ident ("=" Expr)?
 --   SGoto   ::= "goto" Ident
