@@ -39,7 +39,7 @@ compileProgram :: String -> Either String Brainfuck
 compileProgram input =
   do program <- parseProgram input
      compiler <- foldM (flip compile) compilerNew program
-     return $ view output compiler
+     return $ compiler^.output
 
 compilerNew :: Compiler
 compilerNew = Compiler
@@ -104,15 +104,15 @@ compilerGoToSymbol :: Ident -> Compiler -> Either String Compiler
 compilerGoToSymbol name c
   = case compilerLookup name c of
       Left err -> Left $ "cannot go to symbol '" ++ name ++ "': " ++ err
-      Right symbol -> Right $ compilerGoTo (view cell symbol) c
+      Right symbol -> Right $ compilerGoTo (symbol^.cell) c
 
 -- Move the compiler to a cell.
 compilerGoTo :: Int -> Compiler -> Compiler
 compilerGoTo cell c
   = let instructions =
-          if cell < view cellPointer c
-             then take (view cellPointer c - cell) $ repeat BFPrevious
-             else take (cell - view cellPointer c) $ repeat BFNext
+          if cell < c^.cellPointer
+             then take (c^.cellPointer  - cell) $ repeat BFPrevious
+             else take (cell - c^.cellPointer ) $ repeat BFNext
      in set cellPointer cell . over output (++ instructions) $ c
 
 -- Look up a symbol in the symbols map.
@@ -121,14 +121,14 @@ compilerLookup name c
   = maybe
     (Left $ "symbol '" ++ name ++ "' not found")
     Right
-    (Map.lookup name $ view symbols c)
+    (Map.lookup name $ c^.symbols)
 
 -- Add a variable.
 compilerAddVar :: Ident -> Compiler -> Compiler
 compilerAddVar name c
   = over nextCell (+ 1)
-  . (\c -> over symbols (Map.insert name Symbol { _cell = view nextCell c }) c)
-  . compilerGoTo (view nextCell c)
+  . (\c -> over symbols (Map.insert name Symbol { _cell = c^.nextCell }) c)
+  . compilerGoTo (c^.nextCell )
   $ c
 
 -- Clear the current cell.
