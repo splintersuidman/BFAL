@@ -52,6 +52,7 @@ stmt =  stmtVar
     <|> stmtPut
     <|> stmtRead
     <|> stmtCopy
+    <|> stmtWhile
     <|> stmtIncr
     <|> stmtDecr
     <|> stmtAdd
@@ -99,6 +100,15 @@ stmtCopy =
      to <- ident
      return SCopy { _from = from, _to = to }
 
+stmtWhile :: Parser Char Maybe Stmt
+stmtWhile =
+  do token "while"
+     many1 space
+     name <- ident
+     many space
+     body <- block
+     return SWhile { _name = name, _body = body }
+
 stmtIncr :: Parser Char Maybe Stmt
 stmtIncr =
   do token "incr"
@@ -143,6 +153,13 @@ expr = exprInt
 
 exprInt :: Parser Char Maybe Expr
 exprInt = EInt <$> int
+
+block :: Parser Char Maybe [Stmt]
+block =
+  do symbol '{'
+     stmts <- program
+     symbol '}'
+     return stmts
 
 ident :: Parser Char Maybe Ident
 ident =

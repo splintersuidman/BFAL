@@ -7,13 +7,14 @@ module Syntax.AST
 -- Grammar:
 --   Program ::= (Line)*
 --   Line    ::= (Comment)* Stmt ";" (Comment)*
---   Comment ::= "#" (not "\n")* "\n"
+--   Comment ::= "#" (not "\n")* "\n" | whitespace
 --   Stmt    ::= SVar | SSet | SPut | SIncr | SDecr | SAdd | SSub
 --   SVar    ::= "var" Ident (Expr)?
 --   SSet    ::= "set" Ident Expr
 --   SPut    ::= "put" Ident
 --   SRead   ::= "read" Ident
 --   SCopy   ::= "copy" Ident Ident
+--   SWhile  ::= "while" Ident Block
 --   SIncr   ::= "incr" Ident
 --   SDecr   ::= "decr" Ident
 --   SClear  ::= "clear" Ident
@@ -21,6 +22,7 @@ module Syntax.AST
 --   SSub    ::= "sub" Ident Expr
 --   Expr    ::= EInt
 --   EInt    ::= (digit)+
+--   Block   ::= "{" Program "}"
 --   Ident   ::= (lowercase | uppercase)(lowercase | uppercase | digit)*
 
 data Stmt
@@ -41,6 +43,10 @@ data Stmt
   | SCopy
     { _from :: Ident
     , _to   :: Ident
+    }
+  | SWhile
+    { _name :: Ident
+    , _body :: [Stmt]
     }
   | SIncr
     { _name :: Ident

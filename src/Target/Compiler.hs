@@ -120,6 +120,12 @@ compile SCopy { _from = from, _to = to } c
          |> over output (++ [BFJumpBack])
          $  c
          )
+compile SWhile { _name = name, _body = body } c
+  =   compilerGoToSymbol name c
+  >>= return . over output (++ [BFJumpForward])
+  >>= (\c -> foldM (flip compile) c body)
+  >>= compilerGoToSymbol name
+  >>= return . over output (++ [BFJumpBack])
 -- Increment a cell.
 compile SIncr { _name = name } c
   =   compilerGoToSymbol name c

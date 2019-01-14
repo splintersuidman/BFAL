@@ -1,0 +1,15 @@
+# Read a character and print it its ASCII value times.
+# Example: with input "0", this program will output 48 times "0", since the
+# ASCII value of "0" is 48.
+var a;
+var b;
+read a;
+copy a b;
+
+while a {
+    decr a;
+    put b;
+};
+
+var newline 10;
+put newline;
