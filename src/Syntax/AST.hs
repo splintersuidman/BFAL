@@ -13,6 +13,7 @@ module Syntax.AST
 --   SSet    ::= "set" Ident Expr
 --   SPut    ::= "put" Ident
 --   SRead   ::= "read" Ident
+--   SCopy   ::= "copy" Ident Ident
 --   SIncr   ::= "incr" Ident
 --   SDecr   ::= "decr" Ident
 --   SClear  ::= "clear" Ident
@@ -36,6 +37,10 @@ data Stmt
     }
   | SRead
     { _name :: Ident
+    }
+  | SCopy
+    { _from :: Ident
+    , _to   :: Ident
     }
   | SIncr
     { _name :: Ident

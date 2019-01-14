@@ -1,8 +1,8 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Syntax.Parser
-  -- ( parseProgram) where
-  where
+  ( parseProgram
+  ) where
 
 import Syntax.AST
 
@@ -51,6 +51,7 @@ stmt =  stmtVar
     <|> stmtSet
     <|> stmtPut
     <|> stmtRead
+    <|> stmtCopy
     <|> stmtIncr
     <|> stmtDecr
     <|> stmtAdd
@@ -88,6 +89,15 @@ stmtRead =
      many1 space
      name <- ident
      return SRead { _name = name }
+
+stmtCopy :: Parser Char Maybe Stmt
+stmtCopy =
+  do token "copy"
+     many1 space
+     from <- ident
+     many1 space
+     to <- ident
+     return SCopy { _from = from, _to = to }
 
 stmtIncr :: Parser Char Maybe Stmt
 stmtIncr =

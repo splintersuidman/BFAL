@@ -1,9 +1,9 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Target.Compiler
-  ( compileProgram
-  ) where
+module Target.Compiler where
+  -- ( compileProgram
+  -- ) where
 
 import Syntax.AST
 import Syntax.Parser
@@ -12,10 +12,13 @@ import Target.Brainfuck
 import Comb
 
 import           Control.Monad (foldM)
-import           Control.Lens
+import           Control.Lens hiding ((|>))
 import           Data.Char (ord)
 import qualified Data.Map.Strict as Map
 import           Data.Map.Strict (Map)
+
+(|>) :: (a -> b) -> (b -> c) -> a -> c
+(|>) = flip (.)
 
 data Symbol
   = Symbol
@@ -54,9 +57,10 @@ compile :: Stmt -> Compiler -> Either String Compiler
 -- Create a new variable if it does not yet exist.
 compile SVar { _name = name, _initValue = initValue } c
   = let init = case initValue of
-                 Just value -> compileExpr value
+                 -- Go to the newly added symbol and compile the value.
+                 Just value -> (\c -> compilerGoToSymbol name c >>= compileExpr value)
                  -- Do not transform the compiler if no initValue is given.
-                 Nothing -> Right . id
+                 Nothing -> return
      in case compilerLookup name c of
           Right _ -> Left $ "symbol '" ++ name ++ "' already exists"
           Left _ -> init . compilerAddVar name $ c
@@ -72,6 +76,50 @@ compile SPut { _name = name } c
 compile SRead { _name = name } c
   =   compilerGoToSymbol name c
   >>= return . over output (++ [BFRead])
+-- Copy a cell to another cell.
+-- TODO: Add a while-statement. The code can then be translated from an abstract
+-- syntax tree representing the copy algorithm.
+compile SCopy { _from = from, _to = to } c
+  = let tempCell = c^.nextCell in
+    do Symbol { _cell = from } <- compilerLookup from c
+       Symbol { _cell = to } <- compilerLookup to c
+       return
+         (  -- # Copy `from` to `to` and `temp`, but clear `from`.
+            -- goto from;
+            compilerGoTo from
+            -- while from {
+         |> over output (++ [BFJumpForward])
+            --   goto to;
+         |> compilerGoTo to
+            --   incr to;
+         |> over output (++ [BFIncrement])
+            --   goto temp;
+         |> compilerGoTo tempCell
+            --   incr temp;
+         |> over output (++ [BFIncrement])
+            --   goto from;
+         |> compilerGoTo from
+            --   decr from;
+         |> over output (++ [BFDecrement])
+            -- } # Close while-loop.
+         |> over output (++ [BFJumpBack])
+            -- # Move `temp` to `from`, while clearing `temp`.
+            -- goto temp;
+         |> compilerGoTo tempCell
+            -- while temp {
+         |> over output (++ [BFJumpForward])
+            --   goto from;
+         |> compilerGoTo from
+            --   incr from;
+         |> over output (++ [BFIncrement])
+            --   goto temp;
+         |> compilerGoTo tempCell
+            --   decr temp;
+         |> over output (++ [BFDecrement])
+            -- } # Close while-loop.
+         |> over output (++ [BFJumpBack])
+         $  c
+         )
 -- Increment a cell.
 compile SIncr { _name = name } c
   =   compilerGoToSymbol name c
@@ -128,7 +176,6 @@ compilerAddVar :: Ident -> Compiler -> Compiler
 compilerAddVar name c
   = over nextCell (+ 1)
   . (\c -> over symbols (Map.insert name Symbol { _cell = c^.nextCell }) c)
-  . compilerGoTo (c^.nextCell )
   $ c
 
 -- Clear the current cell.

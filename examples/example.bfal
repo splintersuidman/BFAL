@@ -37,10 +37,19 @@ add l 13;
 put l;
 put newline;
 
-# Read a character into `read`, and print it followed by a newline.
+# Read a character into `read`, and print it.
 # NOTE: statement names can also be used as variable names (although it may
 # cause some confusion).
 var read;
 read read;
 put read;
+
+# Copy `read` into `copy1` and `copy2`.
+var copy1;
+var copy2;
+copy read copy1;
+copy read copy2;
+put copy2;
+put copy1;
+
 put newline;
