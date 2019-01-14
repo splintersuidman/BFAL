@@ -8,18 +8,16 @@ module Syntax.AST
 --   Program ::= (Line)*
 --   Line    ::= (Comment)* Stmt ";" (Comment)*
 --   Comment ::= "#" (not "\n")* "\n"
---   Stmt    ::= SVar | SGoto | SSet | SWith | SPut | SIncr | SDecr | SAdd | SSub
---   SVar    ::= "var" Ident ("=" Expr)?
---   SGoto   ::= "goto" Ident
---   SSet    ::= "set" Expr
---   SWith   ::= Ident "~" Stmt
---   SPut    ::= "put"
---   SRead   ::= "read"
---   SIncr   ::= "incr"
---   SDecr   ::= "decr"
---   SClear  ::= "clear"
---   SAdd    ::= "add" Expr
---   SSub    ::= "sub" Expr
+--   Stmt    ::= SVar | SSet | SPut | SIncr | SDecr | SAdd | SSub
+--   SVar    ::= "var" Ident (Expr)?
+--   SSet    ::= "set" Ident Expr
+--   SPut    ::= "put" Ident
+--   SRead   ::= "read" Ident
+--   SIncr   ::= "incr" Ident
+--   SDecr   ::= "decr" Ident
+--   SClear  ::= "clear" Ident
+--   SAdd    ::= "add" Ident Expr
+--   SSub    ::= "sub" Ident Expr
 --   Expr    ::= EInt
 --   EInt    ::= (digit)+
 --   Ident   ::= (lowercase | uppercase)(lowercase | uppercase | digit)*
@@ -29,26 +27,32 @@ data Stmt
     { _name      :: Ident
     , _initValue :: Maybe Expr
     }
-  | SGoto
-    { _name :: Ident
-    }
   | SSet
-    { _value :: Expr
-    }
-  | SWith
-    { _name :: Ident
-    , _stmt :: Stmt
+    { _name  :: Ident
+    , _value :: Expr
     }
   | SPut
+    { _name :: Ident
+    }
   | SRead
+    { _name :: Ident
+    }
   | SIncr
+    { _name :: Ident
+    }
   | SDecr
+    { _name :: Ident
+    }
   | SClear
+    { _name :: Ident
+    }
   | SAdd
-    { _value :: Expr
+    { _name  :: Ident
+    , _value :: Expr
     }
   | SSub
-    { _value :: Expr
+    { _name  :: Ident
+    , _value :: Expr
     }
   deriving (Show)
 

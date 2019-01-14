@@ -1,41 +1,46 @@
 # Set `h`, `e`, and `y` to their respective ASCII values.
-var h = 104;
-var e = 101;
-var y = 121;
+var h 104;
+var e 101;
+var y 121;
 # Set `newline` to the ASCII value of '\n'.
-var newline = 10;
+var newline 10;
 
-# Go to the variables and put them.
-goto h; put;
-# "<name> ~ <statement>" is a shorthand for "goto <name>; <statement>".
-e ~ put;
-y ~ put;
-newline ~ put;
+# Print the variables.
+put h;
+put e;
+put y;
+put newline;
 
 # Print "BFAL\n".
 var l;
-h ~ set 66; # 'B'
-put;        # NOTE: the last visited cell will be pointed to afterwards.
-e ~ set 70; # 'F'
-put;
-y ~ set 65; # 'A'
-put;
-l ~ set 76; # 'L'
-put;
-newline ~ put;
+set h 66; # 'B
+put h;
+set e 70; # 'F'
+put e;
+set y 65; # 'A'
+put y;
+set l 76; # 'L'
+put l;
+put newline;
 
 # Print the Rot13 of "BFAL" and a newline.
 # NOTE: this is not a general Rot13 algorithm, but because 'B', 'F', 'A', and
 #       'L' are all in the 'lower' half of the alphabet, they can increased by
 #       13.
-h ~ add 13; put;
-e ~ add 13; put;
-y ~ add 13; put;
-l ~ add 13; put;
-newline ~ put;
+add h 13;
+put h;
+add e 13;
+put e;
+add y 13;
+put y;
+add l 13;
+put l;
+put newline;
 
 # Read a character into `read`, and print it followed by a newline.
-# NOTE: statement names can also be used as variable names.
+# NOTE: statement names can also be used as variable names (although it may
+# cause some confusion).
 var read;
-read ~ read; put;
-newline ~ put;
+read read;
+put read;
+put newline;

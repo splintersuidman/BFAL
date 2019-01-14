@@ -60,39 +60,40 @@ compile SVar { _name = name, _initValue = initValue } c
      in case compilerLookup name c of
           Right _ -> Left $ "symbol '" ++ name ++ "' already exists"
           Left _ -> init . compilerAddVar name $ c
--- Go to a variable if it exists.
-compile SGoto { _name = name } c
-  = compilerGoToSymbol name c
--- Set the current variable to the given value.
-compile SSet { _value = value } c
-  = compileExpr value . compilerClearCell $ c
--- Go to the variable and execute the statement.
-compile SWith { _name = name, _stmt = stmt } c
-  = compilerGoToSymbol name c >>= compile stmt
--- Print the current cell.
-compile SPut c
-  = Right . over output (++ [BFPrint]) $ c
--- Read a character into the current cell.
-compile SRead c
-  = Right . over output (++ [BFRead]) $ c
--- Increment the current cell.
-compile SIncr c
-  = Right . over output (++ [BFIncrement]) $ c
--- Decrement the current cell.
-compile SDecr c
-  = Right . over output (++ [BFDecrement]) $ c
--- Clear the current cell.
-compile SClear c
-  = Right . compilerClearCell $ c
--- Add a value to the current cell.
-compile SAdd { _value = value } c
+-- Set a cell to the given value.
+compile SSet { _name = name, _value = value } c
+  =   compilerGoToSymbol name c
+  >>= compileExpr value . compilerClearCell
+-- Print a cell.
+compile SPut { _name = name } c
+  =   compilerGoToSymbol name c
+  >>= return . over output (++ [BFPrint])
+-- Read a character into a cell.
+compile SRead { _name = name } c
+  =   compilerGoToSymbol name c
+  >>= return . over output (++ [BFRead])
+-- Increment a cell.
+compile SIncr { _name = name } c
+  =   compilerGoToSymbol name c
+  >>= return . over output (++ [BFIncrement])
+-- Decrement a cell.
+compile SDecr { _name = name } c
+  =   compilerGoToSymbol name c
+  >>= return . over output (++ [BFDecrement])
+-- Clear a cell.
+compile SClear { _name = name } c
+  =   compilerGoToSymbol name c
+  >>= return . compilerClearCell
+-- Add a value to a cell.
+compile SAdd { _name = name, _value = value } c
   = case value of
-      EInt value -> Right . over output (++ (take value $ repeat BFIncrement)) $ c
--- Subtract a value from the current cell.
-compile SSub { _value = value } c
+      EInt value -> compilerGoToSymbol name c
+                >>= return . over output (++ (take value $ repeat BFIncrement))
+-- Subtract a value from a cell.
+compile SSub { _name = name, _value = value } c
   = case value of
-      EInt value -> Right . over output (++ (take value $ repeat BFDecrement)) $ c
-
+      EInt value -> compilerGoToSymbol name c
+                >>= return . over output (++ (take value $ repeat BFDecrement))
 -- Compile an expression.
 compileExpr :: Expr -> Compiler -> Either String Compiler
 compileExpr (EInt value)

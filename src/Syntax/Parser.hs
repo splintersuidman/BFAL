@@ -1,8 +1,8 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Syntax.Parser
-  ( parseProgram
-  ) where
+  -- ( parseProgram) where
+  where
 
 import Syntax.AST
 
@@ -22,9 +22,20 @@ program :: Parser Char Maybe [Stmt]
 program = many line
 
 comments :: Parser Char Maybe ()
-comments = between (many space) (many space) (many comment) `replaceWith` ()
+comments =
+  do many space
+     many (
+       do comment
+          many space
+       )
+     return ()
   where
-    comment = symbol '#' >> many (satisfy (/= '\n')) >> symbol '\n'
+    comment =
+      do symbol '#'
+         many (satisfy (/= '\n'))
+         symbol '\n' `replaceWith` () <|> eof
+
+-- many space >> (comment >> many space >> (comment >> many space)?)?
 
 line :: Parser Char Maybe Stmt
 line =
@@ -37,9 +48,7 @@ line =
 
 stmt :: Parser Char Maybe Stmt
 stmt =  stmtVar
-    <|> stmtGoto
     <|> stmtSet
-    <|> stmtWith
     <|> stmtPut
     <|> stmtRead
     <|> stmtIncr
@@ -55,59 +64,69 @@ stmtVar =
      initValue <- init
      return SVar { _name = name, _initValue = initValue }
   where
-    init = option (Just <$> (many space >> symbol '=' >> many space >> expr)) Nothing
-
-stmtGoto :: Parser Char Maybe Stmt
-stmtGoto =
-  do token "goto"
-     many1 space
-     name <- ident
-     return SGoto { _name = name }
+    init = option (Just <$> (many1 space >> expr)) Nothing
 
 stmtSet :: Parser Char Maybe Stmt
 stmtSet =
   do token "set"
      many1 space
+     name <- ident
+     many1 space
      value <- expr
-     return SSet { _value = value }
-
-stmtWith :: Parser Char Maybe Stmt
-stmtWith =
-  do name <- ident
-     many space
-     symbol '~'
-     many space
-     stmt <- stmt
-     return SWith { _name = name, _stmt = stmt }
+     return SSet { _name = name, _value = value }
 
 stmtPut :: Parser Char Maybe Stmt
-stmtPut = token "put" `replaceWith` SPut
+stmtPut =
+  do token "put"
+     many1 space
+     name <- ident
+     return SPut { _name = name }
 
 stmtRead :: Parser Char Maybe Stmt
-stmtRead = token "read" `replaceWith` SRead
+stmtRead =
+  do token "read"
+     many1 space
+     name <- ident
+     return SRead { _name = name }
 
 stmtIncr :: Parser Char Maybe Stmt
-stmtIncr = token "incr" `replaceWith` SIncr
+stmtIncr =
+  do token "incr"
+     many1 space
+     name <- ident
+     return SIncr { _name = name }
 
 stmtDecr :: Parser Char Maybe Stmt
-stmtDecr = token "decr" `replaceWith` SDecr
+stmtDecr =
+  do token "decr"
+     many1 space
+     name <- ident
+     return SDecr { _name = name }
 
 stmtClear :: Parser Char Maybe Stmt
-stmtClear = token "clear" `replaceWith` SClear
+stmtClear =
+  do token "clear"
+     many1 space
+     name <- ident
+     return SClear { _name = name }
 
 stmtAdd :: Parser Char Maybe Stmt
 stmtAdd =
   do token "add"
      many1 space
+     name <- ident
+     many1 space
      value <- expr
-     return SAdd { _value = value }
+     return SAdd { _name = name, _value = value }
 
 stmtSub :: Parser Char Maybe Stmt
 stmtSub =
   do token "sub"
      many1 space
+     name <- ident
+     many1 space
      value <- expr
-     return SSub { _value = value }
+     return SSub { _name = name, _value = value }
 
 expr :: Parser Char Maybe Expr
 expr = exprInt
