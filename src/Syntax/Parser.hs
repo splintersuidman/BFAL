@@ -165,4 +165,4 @@ ident :: Parser Char Maybe Ident
 ident =
   do first <- lowercase <|> uppercase
      rest  <- many (lowercase <|> uppercase <|> digit)
-     return (first : rest)
+     return $ IName (first : rest)

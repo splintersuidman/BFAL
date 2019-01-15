@@ -1,5 +1,5 @@
 module Syntax.AST
-  ( Ident
+  ( Ident (..)
   , Stmt (..)
   , Expr (..)
   ) where
@@ -71,4 +71,11 @@ data Expr
   = EInt Int -- NOTE: an integer may not (yet) be negative.
   deriving (Show)
 
-type Ident = String
+data Ident
+  = IName String
+  | ICell Int
+  deriving (Eq, Ord)
+
+instance Show Ident where
+  show (IName name) = name
+  show (ICell cell) = "<cell at " ++ show cell ++ ">"

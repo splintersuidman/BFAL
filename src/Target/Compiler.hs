@@ -62,7 +62,7 @@ compile SVar { _name = name, _initValue = initValue } c
                  -- Do not transform the compiler if no initValue is given.
                  Nothing -> return
      in case compilerLookup name c of
-          Right _ -> Left $ "symbol '" ++ name ++ "' already exists"
+          Right _ -> Left $ "symbol '" ++ show name ++ "' already exists"
           Left _ -> init . compilerAddVar name $ c
 -- Set a cell to the given value.
 compile SSet { _name = name, _value = value } c
@@ -77,49 +77,25 @@ compile SRead { _name = name } c
   =   compilerGoToSymbol name c
   >>= return . over output (++ [BFRead])
 -- Copy a cell to another cell.
--- TODO: Add a while-statement. The code can then be translated from an abstract
--- syntax tree representing the copy algorithm.
 compile SCopy { _from = from, _to = to } c
-  = let tempCell = c^.nextCell in
-    do Symbol { _cell = from } <- compilerLookup from c
-       Symbol { _cell = to } <- compilerLookup to c
-       return
-         (  -- # Copy `from` to `to` and `temp`, but clear `from`.
-            -- goto from;
-            compilerGoTo from
-            -- while from {
-         |> over output (++ [BFJumpForward])
-            --   goto to;
-         |> compilerGoTo to
-            --   incr to;
-         |> over output (++ [BFIncrement])
-            --   goto temp;
-         |> compilerGoTo tempCell
-            --   incr temp;
-         |> over output (++ [BFIncrement])
-            --   goto from;
-         |> compilerGoTo from
-            --   decr from;
-         |> over output (++ [BFDecrement])
-            -- } # Close while-loop.
-         |> over output (++ [BFJumpBack])
-            -- # Move `temp` to `from`, while clearing `temp`.
-            -- goto temp;
-         |> compilerGoTo tempCell
-            -- while temp {
-         |> over output (++ [BFJumpForward])
-            --   goto from;
-         |> compilerGoTo from
-            --   incr from;
-         |> over output (++ [BFIncrement])
-            --   goto temp;
-         |> compilerGoTo tempCell
-            --   decr temp;
-         |> over output (++ [BFDecrement])
-            -- } # Close while-loop.
-         |> over output (++ [BFJumpBack])
-         $  c
-         )
+  = let temp = ICell $ c^.nextCell
+     in foldM (flip compile) c
+        [ SWhile
+          { _name = from
+          , _body =
+            [ SIncr { _name = to }
+            , SIncr { _name = temp }
+            , SDecr { _name = from }
+            ]
+          }
+        , SWhile
+          { _name = temp
+          , _body =
+            [ SIncr { _name = from }
+            , SDecr { _name = temp }
+            ]
+          }
+        ]
 compile SWhile { _name = name, _body = body } c
   =   compilerGoToSymbol name c
   >>= return . over output (++ [BFJumpForward])
@@ -157,7 +133,7 @@ compileExpr (EInt value)
 compilerGoToSymbol :: Ident -> Compiler -> Either String Compiler
 compilerGoToSymbol name c
   = case compilerLookup name c of
-      Left err -> Left $ "cannot go to symbol '" ++ name ++ "': " ++ err
+      Left err -> Left $ "cannot go to symbol '" ++ show name ++ "': " ++ err
       Right symbol -> Right $ compilerGoTo (symbol^.cell) c
 
 -- Move the compiler to a cell.
@@ -171,9 +147,11 @@ compilerGoTo cell c
 
 -- Look up a symbol in the symbols map.
 compilerLookup :: Ident -> Compiler -> Either String Symbol
+compilerLookup (ICell cell) c
+  = Right Symbol { _cell = cell }
 compilerLookup name c
   = maybe
-    (Left $ "symbol '" ++ name ++ "' not found")
+    (Left $ "symbol '" ++ show name ++ "' not found")
     Right
     (Map.lookup name $ c^.symbols)
 
