@@ -1,9 +1,9 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Target.Compiler where
-  -- ( compileProgram
-  -- ) where
+module Target.Compiler
+  ( compileProgram
+  ) where
 
 import Syntax.AST
 import Syntax.Parser
