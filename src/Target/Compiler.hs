@@ -14,6 +14,7 @@ import Comb
 import           Control.Monad (foldM)
 import           Control.Lens hiding ((|>))
 import           Data.Char (ord)
+import           Data.List
 import qualified Data.Map.Strict as Map
 import           Data.Map.Strict (Map)
 
@@ -79,20 +80,26 @@ compile SRead { _name = name } c
 -- Copy a cell to another cell.
 -- TODO: Add a while-statement. The code can then be translated from an abstract
 -- syntax tree representing the copy algorithm.
-compile SCopy { _from = from, _to = to } c
+compile SCopy { _from = from, _to = tos } c
   = let tempCell = c^.nextCell in
     do Symbol { _cell = from } <- compilerLookup from c
-       Symbol { _cell = to } <- compilerLookup to c
+       targets <- mapM (\to -> compilerLookup to c) tos
+              >>= return . sort . map (view cell)
+       -- Symbol { _cell = to } <- compilerLookup to c
        return
          (  -- # Copy `from` to `to` and `temp`, but clear `from`.
             -- goto from;
             compilerGoTo from
             -- while from {
          |> over output (++ [BFJumpForward])
-            --   goto to;
-         |> compilerGoTo to
-            --   incr to;
-         |> over output (++ [BFIncrement])
+         |> (\c -> foldl
+              (\c cell
+               --   goto to;
+               -> compilerGoTo cell
+               --   incr to;
+               |> over output (++ [BFIncrement])
+               $ c)
+             c targets)
             --   goto temp;
          |> compilerGoTo tempCell
             --   incr temp;

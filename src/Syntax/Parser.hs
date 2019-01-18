@@ -97,7 +97,7 @@ stmtCopy =
      many1 space
      from <- ident
      many1 space
-     to <- ident
+     to <- sepBy (many space >> symbol ',' >> many space) ident
      return SCopy { _from = from, _to = to }
 
 stmtWhile :: Parser Char Maybe Stmt

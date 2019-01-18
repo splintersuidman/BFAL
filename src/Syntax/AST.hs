@@ -13,7 +13,7 @@ module Syntax.AST
 --   SSet    ::= "set" Ident Expr
 --   SPut    ::= "put" Ident
 --   SRead   ::= "read" Ident
---   SCopy   ::= "copy" Ident Ident
+--   SCopy   ::= "copy" Ident Ident ("," Ident)*
 --   SWhile  ::= "while" Ident Block
 --   SIncr   ::= "incr" Ident
 --   SDecr   ::= "decr" Ident
@@ -42,7 +42,7 @@ data Stmt
     }
   | SCopy
     { _from :: Ident
-    , _to   :: Ident
+    , _to   :: [Ident]
     }
   | SWhile
     { _name :: Ident

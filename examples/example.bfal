@@ -47,8 +47,8 @@ put read;
 # Copy `read` into `copy1` and `copy2`.
 var copy1;
 var copy2;
-copy read copy1;
-copy read copy2;
+# NOTE: `copy <from> <to1>, <to2>;` is faster than `copy <from> <to1>; copy <from> <to2>;`.
+copy read copy1, copy2;
 put copy2;
 put copy1;
 
