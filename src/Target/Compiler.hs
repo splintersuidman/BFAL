@@ -152,6 +152,8 @@ compile SSub { _name = name, _value = value } c
 compileExpr :: Expr -> Compiler -> Either String Compiler
 compileExpr (EInt value)
   = Right . over output (++ (take value $ repeat BFIncrement))
+compileExpr (EChar c)
+  = let value = ord c in Right . over output (++ (take value $ repeat BFIncrement))
 
 -- Move the compiler to a symbol.
 compilerGoToSymbol :: Ident -> Compiler -> Either String Compiler
