@@ -22,6 +22,7 @@ module Syntax.AST
 --   SSub    ::= "sub" Ident Expr
 --   Expr    ::= EInt
 --   EInt    ::= (digit)+
+--   EChar   ::= "'" satisfy isAscii "'"
 --   Block   ::= "{" Program "}"
 --   Ident   ::= (lowercase | uppercase)(lowercase | uppercase | digit)*
 
