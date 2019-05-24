@@ -149,10 +149,15 @@ stmtSub =
      return SSub { _name = name, _value = value }
 
 expr :: Parser Char Maybe Expr
-expr = exprInt
+expr = exprInt <|> exprChar
 
 exprInt :: Parser Char Maybe Expr
 exprInt = EInt <$> int
+
+exprChar :: Parser Char Maybe Expr
+exprChar = between (symbol '\'') (symbol '\'') f
+    where
+      f = EChar <$> satisfy isAscii
 
 block :: Parser Char Maybe [Stmt]
 block =

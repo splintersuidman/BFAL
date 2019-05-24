@@ -22,6 +22,7 @@ module Syntax.AST
 --   SSub    ::= "sub" Ident Expr
 --   Expr    ::= EInt
 --   EInt    ::= (digit)+
+--   EChar   ::= "'" satisfy isAscii "'"
 --   Block   ::= "{" Program "}"
 --   Ident   ::= (lowercase | uppercase)(lowercase | uppercase | digit)*
 
@@ -69,6 +70,7 @@ data Stmt
 
 data Expr
   = EInt Int -- NOTE: an integer may not (yet) be negative.
+  | EChar Char -- NOTE: chars should be convertable to integers and should thus not be larger than 255
   deriving (Show)
 
 type Ident = String
