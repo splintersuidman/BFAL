@@ -141,13 +141,19 @@ compile SClear { _name = name } c
 -- Add a value to a cell.
 compile SAdd { _name = name, _value = value } c
   = case value of
-      EInt value -> compilerGoToSymbol name c
-                >>= return . over output (++ (take value $ repeat BFIncrement))
+      EInt value -> fAdd name value c
+      EChar char -> fAdd name (ord char) c
+    where
+      fAdd name value c = compilerGoToSymbol name c
+              >>= return . over output (++ (take value $ repeat BFIncrement))
 -- Subtract a value from a cell.
 compile SSub { _name = name, _value = value } c
   = case value of
-      EInt value -> compilerGoToSymbol name c
-                >>= return . over output (++ (take value $ repeat BFDecrement))
+      EInt value -> fSub name value c
+      EChar char -> fSub name (ord char) c
+    where
+      fSub name value c = compilerGoToSymbol name c
+                      >>= return . over output (++ (take value $ repeat BFDecrement))
 -- Compile an expression.
 compileExpr :: Expr -> Compiler -> Either String Compiler
 compileExpr (EInt value)
